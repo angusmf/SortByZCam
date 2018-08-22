@@ -6,6 +6,7 @@ public class RenderOrderFixer : MonoBehaviour
     SpriteRenderer _spriteRenderer;
 
     public bool plainSort = true;
+    public bool movesInZ = false;
 
     int _sortOrder;
 
@@ -17,9 +18,23 @@ public class RenderOrderFixer : MonoBehaviour
         SortByZCam.OnCamChanged += CamChanged;
     }
 
+    private void Update()
+    {
+        if (transform.position.z == 0 || !movesInZ) return;
+        int newOrder = GetNewOrder();
+        if (_sortOrder != newOrder) SortByZ(newOrder);
+
+    }
+
+    private int GetNewOrder()
+    {
+        int newOrder = (int)(transform.position.z * SortByZCam.worldScale);
+        return (SortByZCam.facingForward) ? -newOrder : newOrder;
+    }
+
     private void CamChanged()
     {
-        if (plainSort) SortByZ();
+        if (plainSort) SortByZ(GetNewOrder());
         else ReverseSpriteOrder();
     }
 
@@ -29,12 +44,9 @@ public class RenderOrderFixer : MonoBehaviour
         _spriteRenderer.sortingOrder = (SortByZCam.facingForward) ? _sortOrder : -_sortOrder;
     }
 
-    private void SortByZ()
+    private void SortByZ(int newOrder)
     {
         if (transform.position.z == 0) return;
-
-        int newOrder = (int)(transform.position.z * SortByZCam.worldScale);
-        if (SortByZCam.facingForward) newOrder = -newOrder;
 
         if (newOrder == _sortOrder) return;
         else _sortOrder = newOrder;
