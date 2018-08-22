@@ -6,50 +6,40 @@ public class RenderOrderFixer : MonoBehaviour
     SpriteRenderer _spriteRenderer;
     Camera _cam;
 
-    public bool ignorePresetOrder = true;
-    public bool startFacingForward = true;
+    public bool plainSort = true;
 
-    bool camFacingForward;
     int _sortOrder;
 
-    private void Start()
+    private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        _cam = SortByZCam.mainCam;
 
-        SortByZCam.OnFaceForward += FaceForward;
-        SortByZCam.OnFaceBackward += FaceBackward;
-
-        if (ignorePresetOrder)
-            if (startFacingForward) SortByZ(true);
-            else SortByZ(false);
-
+        SortByZCam.OnCamChanged += CamChanged;
     }
 
-    private void Update()
+    private void CamChanged()
     {
-        SortByZ(camFacingForward);
+        if (plainSort) SortByZ();
+        else ReverseSpriteOrder();
     }
 
-    private void FaceForward()
+    //only works for sprites at z = 0
+    private void ReverseSpriteOrder()
     {
-        camFacingForward = true;
+        _spriteRenderer.sortingOrder = -_spriteRenderer.sortingOrder;
     }
 
-    private void FaceBackward()
+    private void SortByZ()
     {
-        camFacingForward = false;
-    }
+        if (transform.position.z == 0) return;
 
-    private void SortByZ(bool faceForward)
-    {   
         int newOrder = (int)(transform.position.z * SortByZCam.worldScale);
+        if (SortByZCam.facingForward) newOrder = -newOrder;
 
         if (newOrder == _sortOrder) return;
         else _sortOrder = newOrder;
 
-        if (faceForward) _spriteRenderer.sortingOrder = -_sortOrder;
-        else _spriteRenderer.sortingOrder = _sortOrder;
+        _spriteRenderer.sortingOrder = _sortOrder;
 
     }
 

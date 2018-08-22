@@ -1,47 +1,48 @@
 ﻿using UnityEngine;
 
 
-
 public class SortByZCam : MonoBehaviour
 {
     public static Camera mainCam;
     public static int worldScale = 1000;
+    
+    public delegate void CamChanged();
 
+    public static CamChanged OnCamChanged;
 
-   public delegate void FaceForward();
-    public delegate void FaceBackward();
+    public static bool facingForward;
 
-    public static FaceForward OnFaceForward;
-
-    public static FaceBackward OnFaceBackward;
-
-    bool facingForward;
-
+   
     private void Start()
     {
         if (mainCam == null)
             mainCam = GetComponent<Camera>();
         else
             Destroy(this);
+
+        //get first cam state
+        facingForward = CheckForwardness();
+
+        //Always send the first cam state
+        OnCamChanged();
     }
 
     private void Update()
     {
-
-        float angle = Vector3.Angle(transform.forward, Vector3.forward);
-        if (facingForward)
-            if (angle > 90)
-            {
-                facingForward = false;
-                OnFaceBackward();
-            }
-            else return;
-        else
-            if (angle < 90)
+        //only send cam state if changed
+        if (facingForward != CheckForwardness())
         {
-            facingForward = true;
-            OnFaceForward();
+            facingForward = !facingForward;
+            OnCamChanged();
         }
+        
+    }
+
+
+    private bool CheckForwardness()
+    {
+        if (Vector3.Angle(transform.forward, Vector3.forward) < 90) return true;
+        return false;
     }
 }
 
