@@ -4,7 +4,6 @@
 public class RenderOrderFixer : MonoBehaviour
 {
     SpriteRenderer _spriteRenderer;
-    Camera _cam;
 
     public bool plainSort = true;
 
@@ -13,6 +12,7 @@ public class RenderOrderFixer : MonoBehaviour
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _sortOrder = _spriteRenderer.sortingOrder;
 
         SortByZCam.OnCamChanged += CamChanged;
     }
@@ -26,7 +26,7 @@ public class RenderOrderFixer : MonoBehaviour
     //only works for sprites at z = 0
     private void ReverseSpriteOrder()
     {
-        _spriteRenderer.sortingOrder = -_spriteRenderer.sortingOrder;
+        _spriteRenderer.sortingOrder = (SortByZCam.facingForward) ? _sortOrder : -_sortOrder;
     }
 
     private void SortByZ()

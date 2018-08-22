@@ -3,22 +3,17 @@
 
 public class SortByZCam : MonoBehaviour
 {
-    public static Camera mainCam;
     public static int worldScale = 1000;
-    
+
     public delegate void CamChanged();
 
     public static CamChanged OnCamChanged;
 
     public static bool facingForward;
 
-   
+
     private void Start()
     {
-        if (mainCam == null)
-            mainCam = GetComponent<Camera>();
-        else
-            Destroy(this);
 
         //get first cam state
         facingForward = CheckForwardness();
@@ -35,9 +30,7 @@ public class SortByZCam : MonoBehaviour
             facingForward = !facingForward;
             OnCamChanged();
         }
-        
     }
-
 
     private bool CheckForwardness()
     {
