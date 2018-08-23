@@ -34,7 +34,7 @@ public class SortByZCam : MonoBehaviour
 
     private bool CheckForwardness()
     {
-        if (Vector3.Angle(transform.forward, Vector3.forward) < 90) return true;
+        if (Vector3.Dot(transform.forward, Vector3.forward) > 0) return true;
         return false;
     }
 }
