@@ -67,6 +67,8 @@ public class SortByZCam : MonoBehaviour
     //apply calculations and offsets to get current correct sorting order for a sprite
     bool ProcessSprite(SpriteInfo si)
     {
+        if (!transform.hasChanged) return false;
+
         int z = GetZOrder(si);
         int r = GetRotationOffsetByZ(si);
 
@@ -160,7 +162,7 @@ public class SortByZCam : MonoBehaviour
 
         for (int i = 0; i < spriteCount; i++)
         {
-            if (dirty || ProcessSprite(spriteArr[i]))
+            if (ProcessSprite(spriteArr[i]) || dirty)
             {
                 SetSpriteOrder(spriteArr[i]);
             }
