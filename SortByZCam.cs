@@ -2,12 +2,14 @@
 using System.Collections;
 using UnityEngine;
 
-
 public class SortByZCam : MonoBehaviour
 {
     #region Inspector items
     public int worldScale = 1000;
     public string LayerName = "Objects";
+
+    const int upperBound = 32767;
+    const int lowerBound = -32767;
 
     #endregion
 
@@ -32,12 +34,6 @@ public class SortByZCam : MonoBehaviour
 
     #region Public Methods 
 
-    //called by SpriteInfo in Awake to get a count;
-    public static void CountSprite()
-    {
-        spriteCount++;
-    }
-
     //called by SpriteInfo in Start to add themselves to our List
     public void AddSpriteInfo(SpriteInfo si)
     {
@@ -53,9 +49,12 @@ public class SortByZCam : MonoBehaviour
         si.transform.rotation = rot;
 
         //read the initial sort order
-        si.sortOrder = si.spriteRenderer.sortingOrder;
+        //si.zOrder = si.spriteRenderer.sortingOrder;
         //and stash the initial sort order as an offset
-        si.initialOffset = si.sortOrder;
+        //if a non-zero value is already serialized into SpriteInfo, we take that, otherwise we take the value from the renderer.
+        //        si.initialOffset = (si.initialOffset == 0) ? si. initialOffset : si.sortOrder;
+        //si.initialOffset = si.sortOrder;
+        si.zOrder = 0;
 
         si.spriteRenderer.sortingLayerName = LayerName;
     }
@@ -72,10 +71,10 @@ public class SortByZCam : MonoBehaviour
         int z = GetZOrder(si);
         int r = GetRotationOffsetByZ(si);
 
-        if (si.sortOrder != z - si.initialOffset || si.rotationOffset != r)
+        if (si.zOrder != z - si.initialOffset || si.rotationOffset != r)
         {
             si.dirty = true;
-            si.sortOrder = z - si.initialOffset;
+            si.zOrder = z;
             si.rotationOffset = r;
             return true;
         }
@@ -85,7 +84,15 @@ public class SortByZCam : MonoBehaviour
     //apply the sprite ordering for a sprite with correction for camera-forwardness
     void SetSpriteOrder(SpriteInfo si)
     {
-        si.spriteRenderer.sortingOrder = (facingForward) ? si.sortOrder * -1 : si.sortOrder + ((facingForward) ? si.rotationOffset * -1 : si.rotationOffset);
+        int newOrder = 0;
+        newOrder = (facingForward) ? si.zOrder * -1 : si.zOrder;
+        newOrder += (facingForward) ? si.initialOffset : si.initialOffset * -1;
+        newOrder += si.rotationOffset;
+
+        if (newOrder > upperBound) newOrder = upperBound;
+        if (newOrder < lowerBound) newOrder = lowerBound;
+
+        si.spriteRenderer.sortingOrder = newOrder;
         si.dirty = false;
     }
 
@@ -132,19 +139,15 @@ public class SortByZCam : MonoBehaviour
     IEnumerator WaitForSprites()
     {
         yield return new WaitForEndOfFrame();
-        if (sprites.Count == spriteCount)
+
+        spriteCount = sprites.Count;
+        spriteArr = sprites.ToArray();
+        for (int i = 0; i < spriteCount; i++)
         {
-            spriteArr = sprites.ToArray();
-            for (int i = 0; i < spriteCount; i++)
-            {
-                ProcessSprite(spriteArr[i]);
-            }
-            initialized = true;
+            ProcessSprite(spriteArr[i]);
         }
-        else
-        {
-            Debug.LogError("sprites.Count (" + sprites.Count + ") != spriteCount (" + spriteCount + ")");
-        }
+        initialized = true;
+
     }
 
     private void Update()
