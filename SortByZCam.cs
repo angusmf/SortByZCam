@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class SortByZCam : MonoBehaviour
 {
     #region Inspector items
@@ -147,7 +148,6 @@ public class SortByZCam : MonoBehaviour
             ProcessSprite(spriteArr[i]);
         }
         initialized = true;
-
     }
 
     private void Update()
