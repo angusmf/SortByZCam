@@ -1,6 +1,8 @@
 
 # SortByZCam
 
+This code is inteded to be pulled into a Unity3d project's Asset folder as a submodule, thus it has no Assets folder or project settings, which you usually see in things intended for the Asset Store. It would be interesting to use Unity's package manaager if/when it's opened to the public.
+
 SortByZCam is a hack to allow somewhat free camera movement when not using an orthographic camera. The default determiner of render order (which texture appears on top of another) is the distance* between the camera and an object. The result is that textures displayed using sprite shader can pop in front/behind each other as the camera moves and the distance changes. Presumably this is because sprite shaders are intended to be used with the SpriteRenderer, which has no 3D geometry. Unfortunately, even if there is Geometry there, such as a quad or plane, the shader seems to have no idea and sorts by the pivot or center of the texture anyway. One solution would be to create a new shader based on a "normal" non-sprite shader. It would need add support for sprite-like things, such as transparency and perhaps double-sidedness. For convenience, one would want a Monobehavior component that replicates the relevent functionality from the SpriteRenderer, and it's unclear how much extra work would be involved in this. But everything would look correct!
 
 This library takes a different approach. In the Unity render pipeline, and the sprite shader in particular, the render order of objects can be overridden based on a sort layer and index within that layer. For any given scene filled with sprites and any given camera position,
