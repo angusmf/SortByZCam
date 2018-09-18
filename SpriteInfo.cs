@@ -6,6 +6,8 @@ public class SpriteInfo : MonoBehaviour
     [HideInInspector]
     public SpriteRenderer spriteRenderer;
 
+    public bool executeInEdit = false;
+
     public Vector3 localTopRight;
     public int initialOffset;
     public int zOrder;
@@ -16,6 +18,8 @@ public class SpriteInfo : MonoBehaviour
 
     private void Start()
     {
+        if (Application.isEditor && !executeInEdit) return;
+
         SortByZCam.Inst.AddSpriteInfo(this);
     }
 

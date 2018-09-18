@@ -14,6 +14,8 @@ public class SortByZCam : MonoBehaviour
 
     #endregion
 
+    public bool executeInEdit = false;
+
     List<SpriteInfo> sprites = new List<SpriteInfo>();
 
     //when all sprites need to have their order re-set
@@ -134,6 +136,8 @@ public class SortByZCam : MonoBehaviour
 
     private void Start()
     {
+        if (Application.isEditor && !executeInEdit) return;
+
         StartCoroutine(WaitForSprites());
     }
 
@@ -152,6 +156,7 @@ public class SortByZCam : MonoBehaviour
 
     private void Update()
     {
+        if (Application.isEditor && !executeInEdit) return;
         if (!initialized) return;
 
         if (transform.hasChanged)
